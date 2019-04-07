@@ -41,7 +41,6 @@ def handle_my_custom_event():
 
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
     log_observer = Observer()
     log_observer.schedule(
         LogChangeHandler(
@@ -54,9 +53,7 @@ if __name__ == '__main__':
         recursive=False
     )
     log_observer.start()
-    try:
-        while True:
-            time.sleep(0.1)
-    except KeyboardInterrupt:
-        log_observer.stop()
+    socketio.run(app, debug=True)
+    log_observer.stop()
     log_observer.join()
+
