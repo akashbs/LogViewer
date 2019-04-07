@@ -39,20 +39,20 @@ def handle_my_custom_event():
     socketio.emit('my response', "testing response")
     return ""
 
+log_observer = Observer()
+log_observer.schedule(
+    LogChangeHandler(
+        patterns=["*.log"],
+        ignore_patterns=["*.swp"],
+        ignore_directories=True,
+        case_sensitive=True
+    ),
+    "logs",
+    recursive=False
+)
+log_observer.start()
 
 if __name__ == '__main__':
-    log_observer = Observer()
-    log_observer.schedule(
-        LogChangeHandler(
-            patterns=["*.log"],
-            ignore_patterns=["*.swp"],
-            ignore_directories=True,
-            case_sensitive=True
-        ),
-        "logs",
-        recursive=False
-    )
-    log_observer.start()
     socketio.run(app, debug=True)
     log_observer.stop()
     log_observer.join()
