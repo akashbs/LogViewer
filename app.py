@@ -10,6 +10,8 @@ app.config['FLASK_ENV'] = 'production'
 app.config['FLASK_DEBUG'] = 1
 socketio = SocketIO(app)
 
+log_filename = "logs/testing.log"
+f_name_pos_map = {}
 log_pos = 0
 
 
@@ -20,22 +22,24 @@ class LogChangeHandler(PatternMatchingEventHandler):
         super().__init__(patterns, ignore_patterns, ignore_directories, case_sensitive)
 
     def on_modified(self, event):
-        global log_pos
-        with open(event.src_path) as f:
-            f.seek(log_pos, 0)
+        global f_name_pos_map
+        f_name = event.src_path
+        f_pos = f_name_pos_map.get(f_name, 0)
+        with open(f_name) as f:
+            f.seek(f_pos, 0)
             for i in f.readlines():
                 socketio.emit('log_response', i)
-            log_pos = f.seek(0, 2)
+            f_name_pos_map[f_name] = f.seek(0, 2)
 
 
 @app.route('/')
 def root():
     initial_log = []
-    global log_pos
-    with open("logs/testing.log") as f:
+    global f_name_pos_map
+    with open(log_filename) as f:
         for i in f.readlines():
             initial_log.append(i)
-        log_pos = f.seek(0, 2)
+        f_name_pos_map[log_filename] = f.seek(0, 2)
     return render_template('static.html', initial_log=initial_log)
 
 
