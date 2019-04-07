@@ -1,4 +1,4 @@
-import time
+import json
 
 from flask import Flask, render_template
 from flask import request
@@ -20,8 +20,7 @@ class LogChangeHandler(PatternMatchingEventHandler):
         super().__init__(patterns, ignore_patterns, ignore_directories, case_sensitive)
 
     def on_modified(self, event):
-        socketio.emit('my response', event.__dict__)
-        print(event.__dict__)
+        socketio.emit('my response', json.dumps(event.__dict__))
 
 
 @app.route('/')
@@ -38,6 +37,7 @@ def handle_my_custom_event():
     print(request.args)
     socketio.emit('my response', "testing response")
     return ""
+
 
 log_observer = Observer()
 log_observer.schedule(
@@ -56,4 +56,3 @@ if __name__ == '__main__':
     socketio.run(app, debug=True)
     log_observer.stop()
     log_observer.join()
-
