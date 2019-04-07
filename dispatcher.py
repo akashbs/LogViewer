@@ -1,39 +1,34 @@
 import time
+
+from watchdog.events import PatternMatchingEventHandler
 from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
 
-def on_created(event):
-    print(f"hey, {event.src_path} has been created!")
 
-def on_deleted(event):
-    print(f"what the f**k! Someone deleted {event.src_path}!")
+class LogChangeHandler(PatternMatchingEventHandler):
 
-class MyHandler(FileSystemEventHandler):
+    def __init__(self, patterns=None, ignore_patterns=None, ignore_directories=False,
+                 case_sensitive=False):
+        super().__init__(patterns, ignore_patterns, ignore_directories, case_sensitive)
+
     def on_modified(self, event):
-        print(f"hey buddy, {event.src_path} has been modified")
-
-def on_moved(event):
-    print(f"ok ok ok, someone moved {event.src_path} to {event.dest_path}")
-
+        print(event.__dict__)
 
 if __name__ == "__main__":
-    patterns = "*"
-    ignore_patterns = ""
-    ignore_directories = False
-    case_sensitive = True
-    my_event_handler = MyHandler()
-    # my_event_handler.on_created = on_created
-    # my_event_handler.on_deleted = on_deleted
-    # my_event_handler.on_modified = on_modified
-    # my_event_handler.on_moved = on_moved
-    path = "."
-    go_recursively = True
-    my_observer = Observer()
-    my_observer.schedule(my_event_handler, path, recursive=go_recursively)
-    my_observer.start()
+    log_observer = Observer()
+    log_observer.schedule(
+        LogChangeHandler(
+            patterns="*.log",
+            ignore_patterns="*.log.swp",
+            ignore_directories=True,
+            case_sensitive=True
+        ),
+        "logs",
+        recursive=False
+    )
+    log_observer.start()
     try:
         while True:
-            time.sleep(1)
+            time.sleep(0.1)
     except KeyboardInterrupt:
-        my_observer.stop()
-    my_observer.join()
+        log_observer.stop()
+    log_observer.join()
