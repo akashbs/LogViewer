@@ -1,5 +1,3 @@
-import json
-
 from flask import Flask, render_template
 from flask import request
 from flask_socketio import SocketIO
@@ -12,6 +10,8 @@ app.config['FLASK_ENV'] = 'production'
 app.config['FLASK_DEBUG'] = 1
 socketio = SocketIO(app)
 
+log_pos = 0
+
 
 class LogChangeHandler(PatternMatchingEventHandler):
 
@@ -20,15 +20,22 @@ class LogChangeHandler(PatternMatchingEventHandler):
         super().__init__(patterns, ignore_patterns, ignore_directories, case_sensitive)
 
     def on_modified(self, event):
-        socketio.emit('my response', json.dumps(event.__dict__))
+        global log_pos
+        with open(event.src_path) as f:
+            f.seek(log_pos, 0)
+            for i in f.readline():
+                socketio.emit('my response', i)
+            log_pos = f.seek(0, 2)
 
 
 @app.route('/')
 def root():
     initial_log = []
+    global log_pos
     with open("logs/testing.log") as f:
         for i in f.readlines():
             initial_log.append(i)
+        log_pos = f.seek(0, 2)
     return render_template('static.html', initial_log=initial_log)
 
 
