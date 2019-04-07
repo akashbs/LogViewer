@@ -21,11 +21,10 @@ class LogChangeHandler(PatternMatchingEventHandler):
 
     def on_modified(self, event):
         global log_pos
-        socketio.emit('my response', "logPos" + str(log_pos))
         with open(event.src_path) as f:
             f.seek(log_pos, 0)
             for i in f.readlines():
-                socketio.emit('my response', i)
+                socketio.emit('log_response', i)
             log_pos = f.seek(0, 2)
 
 
@@ -43,7 +42,7 @@ def root():
 @app.route('/ping')
 def handle_my_custom_event():
     print(request.args)
-    socketio.emit('my response', "testing response")
+    socketio.emit('log_response', "testing response")
     return ""
 
 

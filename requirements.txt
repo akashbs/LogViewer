@@ -1,4 +1,6 @@
 flask-socketio
 watchdog
 flask
+gunicorn
+
 

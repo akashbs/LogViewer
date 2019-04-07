@@ -18,9 +18,9 @@
 
     socket.on('connect', function () {
     });
-    socket.on('my response', function (msg) {
+    socket.on('log_response', function (msg) {
         console.log(msg);
-        $('div.message_holder').append('<div><b style="color: #000">' + msg + '</b> </div>')
+        $('div.message_holder').append(msg)
 
     })
 </script>
