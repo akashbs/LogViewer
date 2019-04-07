@@ -19,9 +19,7 @@
     socket.on('connect', function () {
     });
     socket.on('log_response', function (msg) {
-        console.log(msg);
         $('div.message_holder').append(msg)
-
     })
 </script>
 
