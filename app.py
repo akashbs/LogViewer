@@ -21,9 +21,10 @@ class LogChangeHandler(PatternMatchingEventHandler):
 
     def on_modified(self, event):
         global log_pos
+        socketio.emit('my response', "logPos" + str(log_pos))
         with open(event.src_path) as f:
             f.seek(log_pos, 0)
-            for i in f.readline():
+            for i in f.readlines():
                 socketio.emit('my response', i)
             log_pos = f.seek(0, 2)
 
